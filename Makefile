@@ -42,7 +42,7 @@ run: ## Run
 
 .PHONY: test
 test: ## Run test
-	go test -race -shuffle=on -v ./...
+	GO111MODULE=on go test -race -shuffle=on -v ./...
 
 .PHONY: help
 help: ## Show help
