@@ -1,6 +1,8 @@
 # goboy
 
-Go template repository.
+reference:
+
+https://github.com/bokuweb/gopher-boy
 
 ## install
 
