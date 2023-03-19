@@ -38,7 +38,7 @@ lint: ## Run lint
 
 .PHONY: run
 run: ## Run
-	go run .
+	go run main.go roms/helloworld/hello.gb
 
 .PHONY: test
 test: ## Run test
