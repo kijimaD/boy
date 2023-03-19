@@ -1,20 +1,17 @@
-# go_skel
+# goboy
 
 Go template repository.
-
-```
-git grep -l 'go_skel' | xargs sed -i 's/go_skel/your_repo/g'
-git grep -l 'kijimaD' | xargs sed -i 's/kijimaD/your_name/g'
-```
 
 ## install
 
 ```
-$ go install github.com/kijimaD/go_skel@main
+$ go install github.com/kijimaD/goboy@main
 ```
 
-## docker run
+## development
 
 ```
-$ docker run -v "$PWD/":/work -w /work --rm -it ghcr.io/kijimad/go_skel:latest
+sudo apt install libgl1-mesa-dev
+export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig
+export DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}'):0
 ```
