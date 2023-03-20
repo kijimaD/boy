@@ -34,14 +34,6 @@ jobs:
       - name: build
         run: make build
 
-  run:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: run
-        run: make run
-
   test:
     needs: setup
     runs-on: ubuntu-latest

@@ -1,6 +1,8 @@
 package interrupt
 
-import "github.com/kijimaD/goboy/pkg/types"
+import (
+	"github.com/kijimaD/goboy/pkg/types"
+)
 
 var (
 	// VerticalBlankISRAddr is Vertical Blank Interrupt Start Address
@@ -15,6 +17,7 @@ var (
 	JoypadPressISRAddr types.Word = 0x0060
 )
 
+// IRQFlag is
 type IRQFlag = byte
 
 const (
@@ -67,16 +70,17 @@ const (
 
 const (
 	InterruptFlagAddr       = RegisterOffset + IF
-	interruptEnableFlagAddr = RegisterOffset + IE
+	InterruptEnableFlagAddr = RegisterOffset + IE
 )
 
-// Interruptは2つのレジスタを持つ
+// Interrupt has 2 registers to manage
 type Interrupt struct {
 	IF      byte
 	IE      byte
 	enabled bool
 }
 
+// NewInterrupt constructs irq peripheral.
 func NewInterrupt() *Interrupt {
 	return &Interrupt{
 		IF:      0x00,

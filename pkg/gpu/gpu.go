@@ -10,21 +10,24 @@ import (
 	"github.com/kijimaD/goboy/pkg/types"
 )
 
+// CyclePerLine is gpu clock count per line
 const CyclePerLine uint = 456
 
+// LCDVBlankHeight means vblank height
 const LCDVBlankHeight uint = 10
 
 const spriteNum = 40
 
+// GPU is
 type GPU struct {
 	bus             bus.Accessor
 	irq             interrupt.Interrupt
 	imageData       types.ImageData
 	mode            GPUMode
 	clock           uint
-	lcdc            byte // 表示コントローラ
+	lcdc            byte
 	stat            byte
-	ly              uint // 描画中の行の高さ
+	ly              uint
 	lyc             byte
 	scrollX         byte
 	scrollY         byte
@@ -38,12 +41,13 @@ type GPU struct {
 	oamDMAStartAddr types.Word
 }
 
+// GPUMode
 type GPUMode = byte
 
 const (
 	// HBlankMode is period CPU can access the display RAM ($8000-$9FFF).
 	HBlankMode GPUMode = iota
-	// period and the CPU can access the display RAM($8000-$9FFF)
+	// period and the CPU can access the display RAM ($8000-$9FFF).
 	VBlankMode
 	SearchingOAMMode
 	TransferingData
@@ -97,6 +101,7 @@ const (
 	OAMSTART             = 0xFE00
 )
 
+// NewGPU is GPU constructor
 func NewGPU() *GPU {
 	return &GPU{
 		imageData:       make([]color.RGBA, constants.ScreenWidth*constants.ScreenHeight),
@@ -112,6 +117,7 @@ func NewGPU() *GPU {
 	}
 }
 
+// Init initialize GPU
 func (g *GPU) Init(bus bus.Accessor, irq interrupt.Interrupt) {
 	g.bus = bus
 	g.irq = irq

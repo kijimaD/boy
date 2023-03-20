@@ -1,6 +1,8 @@
 package timer
 
-import "github.com/kijimaD/goboy/pkg/types"
+import (
+	"github.com/kijimaD/goboy/pkg/types"
+)
 
 const (
 	// TimerRegisterOffset is register offset address

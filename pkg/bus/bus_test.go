@@ -26,7 +26,7 @@ func setup() (*Bus, *ram.RAM, *ram.RAM) {
 	l := logger.NewLogger(logger.LogLevel("Debug"))
 	t := timer.NewTimer()
 	irq := interrupt.NewInterrupt()
-	return NewBus(l, cart, gpu, vRAM, wRAM, hRAM, oamRAM, t, irq, *pad), wRAM, hRAM
+	return NewBus(l, cart, gpu, vRAM, wRAM, hRAM, oamRAM, t, irq, pad), wRAM, hRAM
 }
 
 func TestWRAMReadWrite(t *testing.T) {

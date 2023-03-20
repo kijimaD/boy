@@ -6,6 +6,7 @@ import (
 	"github.com/kijimaD/goboy/pkg/constants"
 	"github.com/kijimaD/goboy/pkg/interrupt"
 	"github.com/kijimaD/goboy/pkg/mocks"
+
 	"github.com/stretchr/testify/assert"
 )
 

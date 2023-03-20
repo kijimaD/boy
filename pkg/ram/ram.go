@@ -1,11 +1,15 @@
 package ram
 
-import "github.com/kijimaD/goboy/pkg/types"
+import (
+	"github.com/kijimaD/goboy/pkg/types"
+)
 
+// RAM is
 type RAM struct {
 	data []byte
 }
 
+// NewRAM is RAM constructor
 func NewRAM(size int) *RAM {
 	data := make([]byte, size)
 	return &RAM{

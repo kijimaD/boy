@@ -2,8 +2,8 @@ package cpu
 
 import (
 	"github.com/kijimaD/goboy/pkg/interfaces/bus"
+	"github.com/kijimaD/goboy/pkg/interfaces/interrupt"
 	"github.com/kijimaD/goboy/pkg/interfaces/logger"
-	"github.com/kijimaD/goboy/pkg/interrupt"
 	"github.com/kijimaD/goboy/pkg/types"
 	"github.com/kijimaD/goboy/pkg/utils"
 )

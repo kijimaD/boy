@@ -6,9 +6,8 @@ import (
 	"github.com/kijimaD/goboy/pkg/types"
 )
 
-// MBC1 is Memory Bank Controller 1
-// MBC1は2つの異なる最大メモリモードを持つ
-// <16Mbit ROM/8KByte RAM> or <4Mbit ROM/32KByte RAM>
+// MBC1 is (Memory Bank Controller 1
+// MBC1 has two different maximum memory modes: 16Mbit ROM/8KByte RAM or 4Mbit ROM/32KByte RAM.
 type MBC1 struct {
 	rom             *rom.ROM
 	ram             *ram.RAM
@@ -24,10 +23,9 @@ type MBC1 struct {
 // MBC1MemoryMode はMBC1のメモリ最大モード
 // The MBC1 defaults to 16Mbit ROM/8KByte RAM mode
 // MBC1のデフォルトは16Mbit ROM/8KByte RAM mode -- つまりROMを多く取る
-// Writing a value (XXXXXXXS - X = Don't care, S = Memory model select) into 6000-7FFF area
+// on power up. Writing a value (XXXXXXXS - X = Don't care, S = Memory model select) into 6000-7FFF area
 // will select the memory model to use.
 // S = 0 selects 16/8 mode. S = 1 selects 4/32 mode.
-
 type MBC1MemoryMode = string
 
 const (
@@ -47,6 +45,7 @@ const (
 	ROM4mRAM32kMode = "ROM4M/RAM32K"
 )
 
+// NewMBC1 constracts MBC1
 func NewMBC1(buf []byte, ramSize int, hasBattery bool) *MBC1 {
 	m := &MBC1{}
 	m.memoryMode = ROM16mRAM8kMode
@@ -67,6 +66,7 @@ func NewMBC1(buf []byte, ramSize int, hasBattery bool) *MBC1 {
 
 func (m *MBC1) Write(addr types.Word, value byte) {
 	switch {
+	// 4 bits wide; value of 0x0A enables RAM, any other value disables
 	case addr >= 0x0000 && addr <= 0x1FFF:
 		if m.memoryMode == ROM4mRAM32kMode && m.hasRAM {
 			m.ramEnabled = value&0x0F == 0x0A
@@ -78,7 +78,7 @@ func (m *MBC1) Write(addr types.Word, value byte) {
 	case addr >= 0x2000 && addr <= 0x3FFF:
 		m.switchROMBank(int(value & 0x1F))
 	case addr >= 0x4000 && addr <= 0x5FFF:
-		m.switchROMBank(int(value & 0x03))
+		m.switchRAMBank(int(value & 0x03))
 	case addr >= 0x6000 && addr <= 0x7FFF:
 		if value&0x01 == 0x00 {
 			m.memoryMode = ROM16mRAM8kMode

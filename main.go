@@ -40,7 +40,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("ERROR: %v", errors.New("Failed to create cartridge"))
 	}
-
 	vRAM := ram.NewRAM(0x2000)
 	wRAM := ram.NewRAM(0x2000)
 	hRAM := ram.NewRAM(0x80)
@@ -49,10 +48,10 @@ func main() {
 	t := timer.NewTimer()
 	pad := pad.NewPad()
 	irq := interrupt.NewInterrupt()
-	b := bus.NewBus(l, cart, gpu, vRAM, wRAM, hRAM, oamRAM, t, irq, *pad)
+	b := bus.NewBus(l, cart, gpu, vRAM, wRAM, hRAM, oamRAM, t, irq, pad)
 	gpu.Init(b, irq)
 	win := window.NewWindow(pad)
-	emu := gb.NewGB(cpu.NewCPU(l, b, *irq), gpu, t, irq, *win)
+	emu := gb.NewGB(cpu.NewCPU(l, b, irq), gpu, t, irq, win)
 	win.Run(func() {
 		win.Init()
 		emu.Start()

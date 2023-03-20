@@ -5,10 +5,10 @@ import (
 
 	"github.com/kijimaD/goboy/pkg/cpu"
 	"github.com/kijimaD/goboy/pkg/gpu"
+	"github.com/kijimaD/goboy/pkg/interfaces/window"
 	"github.com/kijimaD/goboy/pkg/interrupt"
 	"github.com/kijimaD/goboy/pkg/timer"
 	"github.com/kijimaD/goboy/pkg/types"
-	"github.com/kijimaD/goboy/pkg/window"
 )
 
 // CyclesPerFrame is cpu clock num for 1frame.

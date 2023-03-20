@@ -1,11 +1,12 @@
 package bus
 
 import (
+	"github.com/kijimaD/goboy/pkg/interfaces/pad"
+	"github.com/kijimaD/goboy/pkg/interrupt"
+
 	"github.com/kijimaD/goboy/pkg/cartridge"
 	"github.com/kijimaD/goboy/pkg/gpu"
 	"github.com/kijimaD/goboy/pkg/interfaces/logger"
-	"github.com/kijimaD/goboy/pkg/interrupt"
-	"github.com/kijimaD/goboy/pkg/pad"
 	"github.com/kijimaD/goboy/pkg/ram"
 	"github.com/kijimaD/goboy/pkg/serial"
 	"github.com/kijimaD/goboy/pkg/timer"
@@ -14,9 +15,11 @@ import (
 )
 
 const (
+	// DMGStatusReg is DMA status register
 	DMGStatusReg types.Word = 0xFF50
 )
 
+// Bus is gb bus
 type Bus struct {
 	logger    logger.Logger
 	bootmode  bool
@@ -57,6 +60,7 @@ type Bus struct {
 | 16kB ROM bank #0           |           |
 ------------------------------  0x0000 --+   */
 
+// NewBus is bus constructor
 func NewBus(
 	logger logger.Logger,
 	cartridge *cartridge.Cartridge,
@@ -83,6 +87,7 @@ func NewBus(
 	}
 }
 
+// ReadByte is byte data reader from bus
 func (b *Bus) ReadByte(addr types.Word) byte {
 	switch {
 	case addr >= 0x0000 && addr <= 0x7FFF:

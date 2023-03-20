@@ -1,6 +1,8 @@
 package cartridge
 
-import "github.com/kijimaD/goboy/pkg/types"
+import (
+	"github.com/kijimaD/goboy/pkg/types"
+)
 
 type MBC interface {
 	Write(addr types.Word, value byte)

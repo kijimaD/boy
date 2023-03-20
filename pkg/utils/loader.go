@@ -5,6 +5,7 @@ import (
 	"os"
 )
 
+// LoadROM loads gameboy ROMfile to buf
 func LoadROM(filename string) ([]byte, error) {
 	file, err := os.Open(filename)
 	if err != nil {

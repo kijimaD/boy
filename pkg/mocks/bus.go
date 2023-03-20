@@ -1,6 +1,8 @@
 package mocks
 
-import "github.com/kijimaD/goboy/pkg/types"
+import (
+	"github.com/kijimaD/goboy/pkg/types"
+)
 
 type MockBus struct {
 	MockMemory [0x10000]byte

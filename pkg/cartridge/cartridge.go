@@ -40,10 +40,8 @@ CartridgeType is
 0xFD: Bandai TAMA5
 0xFE: Hudson HuC-3
 */
-
 type CartridgeType byte
 
-// Memory Bank Controller
 const (
 	MBC_0                 CartridgeType = 0x00
 	MBC_1                               = 0x01
@@ -61,7 +59,7 @@ const (
 
 // バンク切り替えによって利用可能なアドレス空間を拡張している
 // カートリッジによってコントローラの違いがあるよう
-
+// NewCartridge is cartridge constructure
 func NewCartridge(buf []byte) (*Cartridge, error) {
 	title := strings.TrimSpace(string(buf[0x0134:0x0142]))
 	// romSize := 0x8000 << buf[0x0148]

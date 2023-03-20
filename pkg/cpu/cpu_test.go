@@ -15,7 +15,7 @@ func setupCPU(offset types.Word, data []byte) (*CPU, *mocks.MockBus) {
 	b.SetMemory(offset, data)
 	irq := interrupt.NewInterrupt()
 	l := logger.NewLogger(logger.LogLevel("Debug"))
-	return NewCPU(l, &b, *irq), &b
+	return NewCPU(l, &b, irq), &b
 }
 
 func TestNOP(t *testing.T) {
