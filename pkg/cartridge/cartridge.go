@@ -57,14 +57,18 @@ const (
 	MBC_5_RAM_BATT_RUMBLE               = 0x1E
 )
 
-// バンク切り替えによって利用可能なアドレス空間を拡張している
-// カートリッジによってコントローラの違いがあるよう
+const (
+	TITLE_START    = 0x0134
+	TITLE_END      = 0x0142
+	RAM_SIZE       = 0x0149
+	CARTRIDGE_TYPE = 0x0147
+)
+
 // NewCartridge is cartridge constructure
 func NewCartridge(buf []byte) (*Cartridge, error) {
-	title := strings.TrimSpace(string(buf[0x0134:0x0142]))
-	// romSize := 0x8000 << buf[0x0148]
-	ramSize := getRAMSize(buf[0x0149])
-	cartridgeType := CartridgeType(buf[0x0147])
+	title := strings.TrimSpace(string(buf[TITLE_START:TITLE_END]))
+	ramSize := getRAMSize(buf[RAM_SIZE])
+	cartridgeType := CartridgeType(buf[CARTRIDGE_TYPE])
 	fmt.Println("cartridge type is ", cartridgeType)
 	var mbc MBC
 	switch cartridgeType {

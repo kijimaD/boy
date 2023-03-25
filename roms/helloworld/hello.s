@@ -11,7 +11,7 @@ Start:
 	ld	sp,$E000			; setup stack
 
 .wait_vbl
-	ld	a,[rLY]	
+	ld	a,[rLY]
 	cp	$90
 	jr	nz,.wait_vbl			; wait for vblank to properly disable lcd
 
@@ -55,7 +55,7 @@ Start:
 	ld	de,_SCRN0+$100			; center it a bit
 	ld	c,text_end-text			; b = 0, our string = 18 chars, so..
 	call	copy				; lcdc is disabled so you have 'easy' access to vram
-	
+
 	ld	a,LCDCF_ON | LCDCF_BG8000 | LCDCF_BG9800 | LCDCF_OBJ8 | LCDCF_OBJOFF | LCDCF_WINOFF | LCDCF_BGON
 	ld	[rLCDC],a			; enable lcd
 
@@ -65,7 +65,7 @@ Start:
 
 	jr	.the_end
 
-;-------------------------------------------------------------------------------	
+;-------------------------------------------------------------------------------
 copy:
 ;-------------------------------------------------------------------------------
 ; hl - source address

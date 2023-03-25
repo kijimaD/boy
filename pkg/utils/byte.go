@@ -1,6 +1,8 @@
 package utils
 
-import "github.com/kijimaD/goboy/pkg/types"
+import (
+	"github.com/kijimaD/goboy/pkg/types"
+)
 
 func Bytes2Word(upper, lower byte) types.Word {
 	return (types.Word(upper) << 8) ^ types.Word(lower)

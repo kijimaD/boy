@@ -79,7 +79,7 @@ func (cpu *CPU) fetch() byte {
 
 // Step execute an instruction
 func (cpu *CPU) Step() Cycle {
-
+	// 割り込み
 	if cpu.halted {
 		if cpu.irq.HasIRQ() {
 			cpu.halted = false
@@ -89,6 +89,8 @@ func (cpu *CPU) Step() Cycle {
 	if hasIRQ := cpu.resolveIRQ(); hasIRQ {
 		return 0x01
 	}
+
+	// オペコードとオペランド取得・実行
 	opcode := cpu.fetch()
 	var inst *inst
 	if opcode == 0xCB {
@@ -108,14 +110,16 @@ func (cpu *CPU) fetchOperands(size uint) []byte {
 	switch size {
 	case 1:
 		operands = append(operands, cpu.fetch())
-		// オペランドをフェッチする。プログラムカウンタもその分進む
+		// オペランドをフェッチして追加
 	case 2:
 		operands = append(operands, cpu.fetch())
 		operands = append(operands, cpu.fetch())
+		// オペランドのサイズ分進む
 	}
 	return operands
 }
 
+// 命令
 type inst struct {
 	Opcode       byte
 	Description  string
