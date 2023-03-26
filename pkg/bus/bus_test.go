@@ -29,6 +29,24 @@ func setup() (*Bus, *ram.RAM, *ram.RAM) {
 	return NewBus(l, cart, gpu, vRAM, wRAM, hRAM, oamRAM, t, irq, pad), wRAM, hRAM
 }
 
+func TestCartridgeRead(t *testing.T) {
+	assert := assert.New(t)
+	b, _, _ := setup()
+	buf := make([]byte, 0x8000)
+	buf[0x0100] = 0x0F
+	newcart, _ := cartridge.NewCartridge(buf)
+	b.cartridge = newcart
+	assert.Equal(byte(0x0F), b.ReadByte(0x0100))
+}
+
+func TestVRAMReadWrite(t *testing.T) {
+	assert := assert.New(t)
+	b, _, _ := setup()
+	b.WriteByte(0x8000, 0x02)
+	assert.Equal(byte(0x02), b.ReadByte(0x8000))
+	assert.Equal(byte(0x02), b.vRAM.Read(0x0000))
+}
+
 func TestWRAMReadWrite(t *testing.T) {
 	assert := assert.New(t)
 	b, wRAM, _ := setup()
