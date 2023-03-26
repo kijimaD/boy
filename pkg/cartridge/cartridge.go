@@ -8,6 +8,8 @@ import (
 )
 
 // Cartridge is GameBoy cartridge
+// カートリッジは拡張ボードで、外部ハードウェアである
+// ROM領域への書き込みはMBCを使用する
 type Cartridge struct {
 	mbc     MBC
 	Title   string

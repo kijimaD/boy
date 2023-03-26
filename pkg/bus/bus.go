@@ -19,6 +19,32 @@ const (
 	DMGStatusReg types.Word = 0xFF50
 )
 
+const (
+	BANK_BEGIN             = 0x0000
+	BANK_END               = 0x7FFF
+	CARTRIDGE_HEADER_BEGIN = 0x0100
+	VRAM_BEGIN             = 0x8000
+	VRAM_END               = 0x9FFF
+	EXT_RAM_BEGIN          = 0xA000
+	EXT_RAM_END            = 0xBFFF
+	WRAM_BEGIN             = 0xC000
+	WRAM_END               = 0xDFFF
+	ECHO_RAM_BEGIN         = 0xE000
+	ECHO_RAM_END           = 0xFDFF
+	OAM_BEGIN              = 0xFE00
+	OAM_END                = 0xFE9F
+	IO_REG_BEGIN           = 0xFF00
+	IO_REG_END             = 0xFF7F
+	JOYPAD                 = 0xFF00
+	SERIAL_BEGIN           = 0xFF01
+	TIMER_BEGIN            = 0xFF04
+	TIMER_END              = 0xFF07
+	GPU_BEGIN              = 0xFF40
+	HRAM_BEGIN             = 0xFF80
+	HRAM_END               = 0xFFFE
+	IE_REG_ENABLE          = 0xFFFF
+)
+
 // Bus is gb bus
 type Bus struct {
 	logger    logger.Logger
@@ -87,49 +113,50 @@ func NewBus(
 	}
 }
 
-// ReadByte is byte data reader from bus
+// READBYTE is byte data reader from bus
+// メモリマップ
 func (b *Bus) ReadByte(addr types.Word) byte {
 	switch {
-	case addr >= 0x0000 && addr <= 0x7FFF:
-		if b.bootmode && addr < 0x0100 {
+	case addr >= BANK_BEGIN && addr <= BANK_END:
+		if b.bootmode && addr < CARTRIDGE_HEADER_BEGIN {
 			return BIOS[addr]
 		}
-		if addr == 0x0100 {
+		if addr == CARTRIDGE_HEADER_BEGIN {
 			b.bootmode = false
 		}
 		return b.cartridge.ReadByte(addr)
 	// Video RAM
-	case addr >= 0x8000 && addr <= 0x9FFF:
-		return b.vRAM.Read(addr - 0x8000)
-	case addr >= 0xA000 && addr <= 0xBFFF:
+	case addr >= VRAM_BEGIN && addr <= VRAM_END:
+		return b.vRAM.Read(addr - VRAM_BEGIN)
+	case addr >= EXT_RAM_BEGIN && addr <= EXT_RAM_END:
 		return b.cartridge.ReadByte(addr)
 	// Working RAM
-	case addr >= 0xC000 && addr <= 0xDFFF:
-		return b.wRAM.Read(addr - 0xC000)
+	case addr >= WRAM_BEGIN && addr <= WRAM_END:
+		return b.wRAM.Read(addr - WRAM_BEGIN)
 	// Shadow
-	case addr >= 0xE000 && addr <= 0xFDFF:
-		return b.wRAM.Read(addr - 0xE000)
+	case addr >= ECHO_RAM_BEGIN && addr <= ECHO_RAM_END:
+		return b.wRAM.Read(addr - ECHO_RAM_BEGIN)
 	// OAM
-	case addr >= 0xFE00 && addr <= 0xFE9F:
-		return b.oamRAM.Read(addr - 0xFE00)
+	case addr >= OAM_BEGIN && addr <= OAM_END:
+		return b.oamRAM.Read(addr - OAM_BEGIN)
 	// Pad
-	case addr == 0xFF00:
+	case addr == JOYPAD:
 		return b.pad.Read()
 	// Timer
-	case addr >= 0xFF04 && addr <= 0xFF07:
-		return b.timer.Read(addr - 0xFF00)
+	case addr >= TIMER_BEGIN && addr <= TIMER_END:
+		return b.timer.Read(addr - IO_REG_BEGIN)
 	// IF
 	case addr == 0xFF0F:
-		return b.irq.Read(addr - 0xFF00)
+		return b.irq.Read(addr - IO_REG_BEGIN)
 	// GPU
-	case addr >= 0xFF40 && addr <= 0xFF7F:
-		return b.gpu.Read(addr - 0xFF40)
+	case addr >= GPU_BEGIN && addr <= IO_REG_END:
+		return b.gpu.Read(addr - GPU_BEGIN)
 	// Zero page RAM
-	case addr >= 0xFF80 && addr <= 0xFFFE:
-		return b.hRAM.Read(addr - 0xFF80)
+	case addr >= HRAM_BEGIN && addr <= HRAM_END:
+		return b.hRAM.Read(addr - HRAM_BEGIN)
 	// IE
-	case addr == 0xFFFF:
-		return b.irq.Read(addr - 0xFF00)
+	case addr == IE_REG_ENABLE:
+		return b.irq.Read(addr - IO_REG_BEGIN)
 	default:
 		return 0
 	}
@@ -146,43 +173,43 @@ func (b *Bus) ReadWord(addr types.Word) types.Word {
 // WriteByte is byte data writer to bus
 func (b *Bus) WriteByte(addr types.Word, data byte) {
 	switch {
-	case addr >= 0x0000 && addr <= 0x7FFF:
+	case addr >= BANK_BEGIN && addr <= BANK_END:
 		b.cartridge.WriteByte(addr, data)
 	// Video RAM
-	case addr >= 0x8000 && addr <= 0x9FFF:
-		b.vRAM.Write(addr-0x8000, data)
-	case addr >= 0xA000 && addr <= 0xBFFF:
+	case addr >= VRAM_BEGIN && addr <= VRAM_END:
+		b.vRAM.Write(addr-VRAM_BEGIN, data)
+	case addr >= EXT_RAM_BEGIN && addr <= EXT_RAM_END:
 		b.cartridge.WriteByte(addr, data)
 	// Working RAM
-	case addr >= 0xC000 && addr <= 0xDFFF:
-		b.wRAM.Write(addr-0xC000, data)
+	case addr >= WRAM_BEGIN && addr <= WRAM_END:
+		b.wRAM.Write(addr-WRAM_BEGIN, data)
 	// Shadow
-	case addr >= 0xE000 && addr <= 0xFDFF:
-		b.wRAM.Write(addr-0xE000, data)
+	case addr >= ECHO_RAM_BEGIN && addr <= ECHO_RAM_END:
+		b.wRAM.Write(addr-ECHO_RAM_BEGIN, data)
 	// OAM
-	case addr >= 0xFE00 && addr <= 0xFE9F:
-		b.oamRAM.Write(addr-0xFE00, data)
+	case addr >= OAM_BEGIN && addr <= OAM_END:
+		b.oamRAM.Write(addr-OAM_BEGIN, data)
 	// Pad
-	case addr == 0xFF00:
+	case addr == IO_REG_BEGIN:
 		b.pad.Write(data)
 	// Serial
-	case addr == 0xFF01:
+	case addr == SERIAL_BEGIN:
 		serial.Send(data)
 	// Timer
-	case addr >= 0xFF04 && addr <= 0xFF07:
-		b.timer.Write(addr-0xFF00, data)
+	case addr >= TIMER_BEGIN && addr <= TIMER_END:
+		b.timer.Write(addr-IO_REG_BEGIN, data)
 	// IF
 	case addr == 0xFF0F:
-		b.irq.Write(addr-0xFF00, data)
+		b.irq.Write(addr-IO_REG_BEGIN, data)
 	// GPU
-	case addr >= 0xFF40 && addr <= 0xFF7F:
-		b.gpu.Write(addr-0xFF40, data)
+	case addr >= GPU_BEGIN && addr <= IO_REG_END:
+		b.gpu.Write(addr-GPU_BEGIN, data)
 	//Zero page RAM
-	case addr >= 0xFF80 && addr <= 0xFFFE:
-		b.hRAM.Write(addr-0xFF80, data)
+	case addr >= HRAM_BEGIN && addr <= HRAM_END:
+		b.hRAM.Write(addr-HRAM_BEGIN, data)
 	// IE
-	case addr == 0xFFFF:
-		b.irq.Write(addr-0xFF00, data)
+	case addr == IE_REG_ENABLE:
+		b.irq.Write(addr-IO_REG_BEGIN, data)
 	default:
 		// fmt.Printf("Error: You can not write 0x%X, this area is invalid or unimplemented area.\n", addr)
 	}
