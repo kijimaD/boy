@@ -38,34 +38,26 @@ func TestLY(t *testing.T) {
 func TestBuildBGTile(t *testing.T) {
 	g := setup()
 	// タイルは VRAM 8000 ~ 97FF
-	// タイルマップは9800 ~
-	g.bus.WriteByte(types.Word(0x8000), uint8(0b1111_1110))
-	g.bus.WriteByte(types.Word(0x8001), uint8(0b1111_1100))
+	data := []int{
+		0b1111_1110, 0b1111_1100, // 各ビットで1列に対応。2要素分をマスクして濃さを求める 例. 1x1 => 濃 1x0 => 薄
+		0b1111_1110, 0b1111_1100,
+		0b1111_1110, 0b1111_1100,
+		0b1111_1110, 0b1111_1100,
+		0b1111_1110, 0b1111_1100,
+		0b1111_1110, 0b1111_1100,
+		0b1111_1110, 0b0000_0000,
+		0b0000_0000, 0b0000_0000,
+	}
 
-	g.bus.WriteByte(types.Word(0x8002), uint8(0b1111_1110))
-	g.bus.WriteByte(types.Word(0x8003), uint8(0b1111_1100))
-
-	g.bus.WriteByte(types.Word(0x8004), uint8(0b1111_1110))
-	g.bus.WriteByte(types.Word(0x8005), uint8(0b1111_1100))
-
-	g.bus.WriteByte(types.Word(0x8006), uint8(0b1111_1110))
-	g.bus.WriteByte(types.Word(0x8007), uint8(0b1111_1100))
-
-	g.bus.WriteByte(types.Word(0x8008), uint8(0b1111_1110))
-	g.bus.WriteByte(types.Word(0x8009), uint8(0b1111_1100))
-
-	g.bus.WriteByte(types.Word(0x800a), uint8(0b1111_1110))
-	g.bus.WriteByte(types.Word(0x800b), uint8(0b1111_1100))
-
-	g.bus.WriteByte(types.Word(0x800c), uint8(0b1111_1110))
-	g.bus.WriteByte(types.Word(0x800d), uint8(0b0000_0000))
-
-	g.bus.WriteByte(types.Word(0x800e), uint8(0b0000_0000))
-	g.bus.WriteByte(types.Word(0x800f), uint8(0b0000_0000))
+	addr := 0x8000
+	for _, d := range data {
+		g.bus.WriteByte(types.Word(addr), uint8(d))
+		addr++
+	}
 
 	g.bgPalette = 0b1110_0100
 
-	for i := 0; i < 144; i++ {
+	for i := 0; i < 8; i++ {
 		g.buildBGTile()
 		g.ly = g.ly + 1
 	}
