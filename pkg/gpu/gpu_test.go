@@ -37,9 +37,9 @@ func TestLY(t *testing.T) {
 
 func TestBuildBGTile(t *testing.T) {
 	g := setup()
-	// タイルは VRAM 8000 ~ 97FF
+
 	data := []int{
-		0b1111_1110, 0b1111_1100, // 各ビットで1列に対応。2要素分をマスクして濃さを求める 例. 1x1 => 濃 1x0 => 薄
+		0b1111_1110, 0b1111_1100, // これで1行分。各ビットが1ピクセルに対応。2要素分をマスクして濃さを求める 例. 1x1 => 濃 1x0 => 薄
 		0b1111_1110, 0b1111_1100,
 		0b1111_1110, 0b1111_1100,
 		0b1111_1110, 0b1111_1100,
@@ -49,15 +49,83 @@ func TestBuildBGTile(t *testing.T) {
 		0b0000_0000, 0b0000_0000,
 	}
 
+	// タイルは VRAM 0x8000 ~ 0x97FF
 	addr := 0x8000
 	for _, d := range data {
 		g.bus.WriteByte(types.Word(addr), uint8(d))
 		addr++
 	}
 
+	dataH := []int{
+		0b0000_0000, 0b0000_0000,
+		0b0100_0010, 0b0100_0010,
+		0b0100_0010, 0b0100_0010,
+		0b0111_1110, 0b0111_1110,
+		0b0100_0010, 0b0100_0010,
+		0b0100_0010, 0b0100_0010,
+		0b0100_0010, 0b0100_0010,
+		0b0000_0000, 0b0000_0000,
+	}
+	for _, d := range dataH {
+		g.bus.WriteByte(types.Word(addr), uint8(d))
+		addr++
+	}
+
+	dataE := []int{
+		0b0000_0000, 0b0000_0000,
+		0b0111_1110, 0b0111_1110,
+		0b0100_0000, 0b0100_0000,
+		0b0111_1110, 0b0111_1110,
+		0b0100_0000, 0b0100_0000,
+		0b0100_0000, 0b0100_0000,
+		0b0111_1110, 0b0111_1110,
+		0b0000_0000, 0b0000_0000,
+	}
+	for _, d := range dataE {
+		g.bus.WriteByte(types.Word(addr), uint8(d))
+		addr++
+	}
+
+	dataL := []int{
+		0b0000_0000, 0b0000_0000,
+		0b0100_0000, 0b0100_0000,
+		0b0100_0000, 0b0100_0000,
+		0b0100_0000, 0b0100_0000,
+		0b0100_0000, 0b0100_0000,
+		0b0100_0000, 0b0100_0000,
+		0b0111_1110, 0b0111_1110,
+		0b0000_0000, 0b0000_0000,
+	}
+	for _, d := range dataL {
+		g.bus.WriteByte(types.Word(addr), uint8(d))
+		addr++
+	}
+
+	dataO := []int{
+		0b0000_0000, 0b0000_0000,
+		0b0011_1100, 0b0011_1100,
+		0b0100_0010, 0b0100_0010,
+		0b0100_0010, 0b0100_0010,
+		0b0100_0010, 0b0100_0010,
+		0b0100_0010, 0b0100_0010,
+		0b0011_1100, 0b0011_1100,
+		0b0000_0000, 0b0000_0000,
+	}
+	for _, d := range dataO {
+		g.bus.WriteByte(types.Word(addr), uint8(d))
+		addr++
+	}
+
+	// タイルマップは0x9800 ~
+	g.bus.WriteByte(types.Word(0x9800), uint8(0b0000_0001))
+	g.bus.WriteByte(types.Word(0x9801), uint8(0b0000_0010))
+	g.bus.WriteByte(types.Word(0x9802), uint8(0b0000_0011))
+	g.bus.WriteByte(types.Word(0x9803), uint8(0b0000_0100))
+	g.bus.WriteByte(types.Word(0x9804), uint8(0b0000_0100))
+
 	g.bgPalette = 0b1110_0100
 
-	for i := 0; i < 8; i++ {
+	for i := 0; i < 144; i++ {
 		g.buildBGTile()
 		g.ly = g.ly + 1
 	}

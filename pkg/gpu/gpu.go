@@ -441,7 +441,6 @@ func (g *GPU) getTileID(tileY, lineOffset uint, offsetAddr types.Word) int {
 	addr := types.Word(tileY) + types.Word(lineOffset) + offsetAddr
 	id := byte(g.bus.ReadByte(addr))
 	return int(id)
-
 }
 
 func (g *GPU) getBGPalette(n uint) color.RGBA {
