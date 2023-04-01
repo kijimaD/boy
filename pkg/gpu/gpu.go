@@ -357,6 +357,7 @@ func (g *GPU) buildSprites() {
 // 8x8ピクセルの1かたまりが1タイル
 // バックグラウンドタイルの情報から、imageDataに書き込む
 // y座標はg.lyから取る
+// palleteIDで色の値が決まる
 func (g *GPU) buildBGTile() {
 	var tileID int
 	for x := 0; x < constants.ScreenWidth; x++ {

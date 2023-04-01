@@ -1,11 +1,15 @@
 package gpu
 
 import (
+	"image"
+	"image/png"
+	"os"
 	"testing"
 
 	"github.com/kijimaD/goboy/pkg/constants"
 	"github.com/kijimaD/goboy/pkg/interrupt"
 	"github.com/kijimaD/goboy/pkg/mocks"
+	"github.com/kijimaD/goboy/pkg/types"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -28,5 +32,61 @@ func TestLY(t *testing.T) {
 		}
 
 		g.Step(CyclePerLine)
+	}
+}
+
+func TestBuildBGTile(t *testing.T) {
+	g := setup()
+	// タイルは VRAM 8000 ~ 97FF
+	// タイルマップは9800 ~
+	g.bus.WriteByte(types.Word(0x8000), uint8(0b1111_1110))
+	g.bus.WriteByte(types.Word(0x8001), uint8(0b1111_1100))
+
+	g.bus.WriteByte(types.Word(0x8002), uint8(0b1111_1110))
+	g.bus.WriteByte(types.Word(0x8003), uint8(0b1111_1100))
+
+	g.bus.WriteByte(types.Word(0x8004), uint8(0b1111_1110))
+	g.bus.WriteByte(types.Word(0x8005), uint8(0b1111_1100))
+
+	g.bus.WriteByte(types.Word(0x8006), uint8(0b1111_1110))
+	g.bus.WriteByte(types.Word(0x8007), uint8(0b1111_1100))
+
+	g.bus.WriteByte(types.Word(0x8008), uint8(0b1111_1110))
+	g.bus.WriteByte(types.Word(0x8009), uint8(0b1111_1100))
+
+	g.bus.WriteByte(types.Word(0x800a), uint8(0b1111_1110))
+	g.bus.WriteByte(types.Word(0x800b), uint8(0b1111_1100))
+
+	g.bus.WriteByte(types.Word(0x800c), uint8(0b1111_1110))
+	g.bus.WriteByte(types.Word(0x800d), uint8(0b0000_0000))
+
+	g.bus.WriteByte(types.Word(0x800e), uint8(0b0000_0000))
+	g.bus.WriteByte(types.Word(0x800f), uint8(0b0000_0000))
+
+	g.bgPalette = 0b1110_0100
+
+	for i := 0; i < 144; i++ {
+		g.buildBGTile()
+		g.ly = g.ly + 1
+	}
+
+	file, err := os.Create("../../test/unit/block.png")
+	defer file.Close()
+	if err != nil {
+		panic(err)
+	}
+	img := image.NewRGBA(image.Rect(0, 0, constants.ScreenWidth, constants.ScreenHeight))
+	set(img, g.imageData)
+	if err := png.Encode(file, img); err != nil {
+		panic(err)
+	}
+}
+
+func set(img *image.RGBA, imageData types.ImageData) {
+	rect := img.Rect
+	for y := rect.Min.Y; y < rect.Max.Y; y++ {
+		for x := rect.Min.X; x < rect.Max.X; x++ {
+			img.Set(x, rect.Max.Y-y, imageData[y*rect.Max.X+x])
+		}
 	}
 }
