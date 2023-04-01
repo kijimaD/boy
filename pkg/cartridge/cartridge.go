@@ -116,7 +116,6 @@ func (c *Cartridge) ReadByte(addr types.Word) byte {
 	return c.mbc.Read(addr)
 }
 
-// カートリッジにはデータを保存する。つまり書き込みがある
 func (c *Cartridge) WriteByte(addr types.Word, data byte) {
 	c.mbc.Write(addr, data)
 }

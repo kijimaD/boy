@@ -18,7 +18,8 @@ const LCDVBlankHeight uint = 10
 
 const spriteNum = 40
 
-// GPU is
+// GB的にはPPU
+// Background、Window、Spritesのレイヤー構造で画面を描画する
 type GPU struct {
 	bus             bus.Accessor
 	irq             interrupt.Interrupt
@@ -73,7 +74,7 @@ const (
 	// 144 and 153 indicate the V-Blank period.
 	// Writing will reset the counter.
 	LY  = 0x04
-	LYC = 0x05
+	LYC = 0x05 // LY Compare
 	// BGP - BG & Window Palette Data (R/W)
 	// Bit 7-6 - Data for Dot Data 11
 	// (Normally darkest color)
@@ -98,7 +99,7 @@ const (
 	TILEMAP1             = 0x9C00
 	TILEDATA0            = 0x8800
 	TILEDATA1            = 0x8000
-	OAMSTART             = 0xFE00
+	OAMSTART             = 0xFE00 // OAMはオブジェクトの属性。4バイト分
 )
 
 // NewGPU is GPU constructor
@@ -107,7 +108,7 @@ func NewGPU() *GPU {
 		imageData:       make([]color.RGBA, constants.ScreenWidth*constants.ScreenHeight),
 		mode:            HBlankMode,
 		clock:           0,
-		lcdc:            0x91,
+		lcdc:            0x91, // LCD Control
 		ly:              0,
 		scrollX:         0,
 		scrollY:         0,
@@ -124,6 +125,8 @@ func (g *GPU) Init(bus bus.Accessor, irq interrupt.Interrupt) {
 }
 
 // Step is run GPU
+// 一列ずつ描画していく
+// レイヤーには3種類ある。背景、ウィンドウ、スプライト。
 func (g *GPU) Step(cycles uint) {
 	if g.bus == nil {
 		panic("Please initialize gpu with Init, before running.")
@@ -136,17 +139,21 @@ func (g *GPU) Step(cycles uint) {
 	g.updateMode()
 
 	g.clock += cycles
+	// 周期を空けて実行する
 	if g.clock >= CyclePerLine {
 		if g.ly == constants.ScreenHeight {
+			// スクリーンの下の端。スプライト追加、割り込みを有効化
 			g.buildSprites()
 			g.irq.SetIRQ(irq.VerticalBlankFlag)
 			if g.vBlankInterruptEnabled() {
 				g.irq.SetIRQ(irq.LCDSFlag)
 			}
 		} else if g.ly >= constants.ScreenHeight+LCDVBlankHeight {
+			// スクリーンの端＋ブランクより大きいとき。背景のみ追加
 			g.ly = 0
 			g.buildBGTile()
 		} else if g.ly < constants.ScreenHeight {
+			// スクリーン内。背景とウィンドウ追加
 			g.buildBGTile()
 			if g.windowEnabled() {
 				g.buildWindowTile()
@@ -154,6 +161,8 @@ func (g *GPU) Step(cycles uint) {
 		}
 
 		if g.ly == uint(g.lyc) {
+			// 同じ値のときに割り込みを発生させる
+			// 常に比べられるから、LYC(LY Compare)
 			g.stat |= 0x04
 			if g.coincidenceInterruptEnabled() {
 				g.irq.SetIRQ(irq.LCDSFlag)
@@ -218,7 +227,6 @@ func (g *GPU) updateMode() {
 			g.irq.SetIRQ(irq.LCDSFlag)
 		}
 	}
-
 }
 
 func (g *GPU) windowEnabled() bool {
@@ -286,14 +294,21 @@ func (g *GPU) DMAStarted() bool {
 	return g.oamDMAStarted
 }
 
+// DMA(Direct Memory Access)を使用してOAM(Object Attribute Memory)のデータを転送する
 func (g *GPU) Transfer() {
 	for i := 0; i < 0xA0; i++ {
+		// データを特定
 		data := g.bus.ReadByte(g.oamDMAStartAddr + types.Word(i))
+		// データをバスを経由してOAMに書き込み
 		g.bus.WriteByte(OAMSTART+types.Word(i), data)
 	}
 	g.oamDMAStarted = false
 }
 
+// スプライトは背景上のレイヤーで、ID0の色を透過できる。8x8か8x16のどちらかを1単位として表示可能。
+// スプライトの情報からimageDataに書き込む
+// 1つ1つに設定を持っていて、パレットや反転を設定できる
+// 画面1行ごとに最大10個のスプライトしか置けない
 func (g *GPU) buildSprites() {
 	for i := 0; i < spriteNum; i++ {
 		offsetY := int(g.bus.ReadByte(types.Word(OAMSTART+i*4))) - 16
@@ -304,6 +319,7 @@ func (g *GPU) buildSprites() {
 		yFlip := config&0x40 != 0
 		xFlip := config&0x20 != 0
 		isPallette1 := config&0x10 != 0
+		// 1ピクセルごとにループ
 		for x := 0; x < 8; x++ {
 			for y := 0; y < 8; y++ {
 				if offsetX+x < 0 || offsetX+x >= constants.ScreenWidth {
@@ -313,10 +329,12 @@ func (g *GPU) buildSprites() {
 					continue
 				}
 				paletteID := g.getSpritePaletteID(int(tileID), x, uint(y))
+				// x反転
 				adjustedX := x
 				if xFlip {
 					adjustedX = 7 - x
 				}
+				// y反転
 				adjustedY := y
 				if yFlip {
 					adjustedY = 7 - y
@@ -327,6 +345,7 @@ func (g *GPU) buildSprites() {
 				} else {
 					c = (g.objPalette0 >> (paletteID * 2)) & 0x03
 				}
+				// パレットIDが0のときは背景色を優先するため描画をスキップする
 				if paletteID != 0 {
 					g.imageData[(constants.ScreenHeight-1-uint(offsetY+adjustedY))*constants.ScreenWidth+uint(adjustedX+offsetX)] = g.getPalette(c)
 				}
@@ -335,6 +354,9 @@ func (g *GPU) buildSprites() {
 	}
 }
 
+// 8x8ピクセルの1かたまりが1タイル
+// バックグラウンドタイルの情報から、imageDataに書き込む
+// y座標はg.lyから取る
 func (g *GPU) buildBGTile() {
 	var tileID int
 	for x := 0; x < constants.ScreenWidth; x++ {
@@ -345,6 +367,8 @@ func (g *GPU) buildBGTile() {
 	}
 }
 
+// ウィンドウはバックグラウンドの上に置けるバックグラウンド
+// サイズ変更できず、不透明。表示するタイルデータはバックグラウンドと同じものが使える
 func (g *GPU) buildWindowTile() {
 	var tileID int
 	if (g.windowX < 0 && g.windowX >= 167) && (g.windowY < 0 && g.windowY >= 144) {
@@ -385,6 +409,7 @@ func (g *GPU) getSpritePaletteID(tileID int, x int, y uint) byte {
 	return paletteID
 }
 
+// タイルIDからパレットIDを取得して返す
 func (g *GPU) getBGPaletteID(tileID int, x int, y uint) byte {
 	x = x % 8
 	var addr types.Word
@@ -423,6 +448,7 @@ func (g *GPU) getBGPalette(n uint) color.RGBA {
 	return g.getPalette(c)
 }
 
+// 色を取得
 func (g *GPU) getPalette(c byte) color.RGBA {
 	switch c {
 	case 0:
