@@ -313,7 +313,7 @@ func (g *GPU) buildSprites() {
 	for i := 0; i < spriteNum; i++ {
 		offsetY := int(g.bus.ReadByte(types.Word(OAMSTART+i*4))) - 16
 		offsetX := int(g.bus.ReadByte(types.Word(OAMSTART+i*4+1))) - 8
-		tileID := g.bus.ReadByte(types.Word(OAMSTART + i*4 + 2))
+		tileID := g.bus.ReadByte(types.Word(OAMSTART + i*4 + 2)) // 4バイトで1セットなので*4、タイルIDは3番目なので+2。
 		config := types.Word(g.bus.ReadByte(types.Word(OAMSTART + i*4 + 3)))
 		// aboveBG := config&0x80 == 0
 		yFlip := config&0x40 != 0
@@ -345,7 +345,7 @@ func (g *GPU) buildSprites() {
 				} else {
 					c = (g.objPalette0 >> (paletteID * 2)) & 0x03
 				}
-				// パレットIDが0のときは背景色を優先するため描画をスキップする
+				// パレットIDが0以外のとき描画。0のときは背景色を優先するため描画をスキップする
 				if paletteID != 0 {
 					g.imageData[(constants.ScreenHeight-1-uint(offsetY+adjustedY))*constants.ScreenWidth+uint(adjustedX+offsetX)] = g.getPalette(c)
 				}
@@ -394,6 +394,7 @@ func (g *GPU) tileData0Selected() bool {
 	return g.lcdc&0x10 != 0x10
 }
 
+// タイルIDからスプライトのパレットIDを取得する
 func (g *GPU) getSpritePaletteID(tileID int, x int, y uint) byte {
 	x = x % 8
 	addr := types.Word(tileID * 0x10)

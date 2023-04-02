@@ -150,3 +150,79 @@ func set(img *image.RGBA, imageData types.ImageData) {
 		}
 	}
 }
+
+func TestBuildSprites(t *testing.T) {
+	g := setup()
+
+	tiledata := []int{
+		0b000_0000, 0b0000_0000,
+		0b0000_0000, 0b0000_0000,
+		0b0000_0000, 0b0000_0000,
+		0b0001_1000, 0b0000_0000,
+		0b0001_1000, 0b0000_0000,
+		0b0000_0000, 0b0000_0000,
+		0b0000_0000, 0b0000_0000,
+		0b0000_0000, 0b0000_0000,
+	}
+
+	// タイルは VRAM 0x8000 ~ 0x97FF
+	addr := 0x8000
+	for _, d := range tiledata {
+		g.bus.WriteByte(types.Word(addr), uint8(d))
+		addr++
+	}
+
+	spritedata := []int{
+		0b0000_0000, 0b0000_0000,
+		0b0000_0000, 0b0000_0000,
+		0b0000_0000, 0b0110_0110,
+		0b0000_0000, 0b0000_0000,
+		0b0000_0000, 0b0000_0000,
+		0b0000_0000, 0b0011_1100,
+		0b0000_0000, 0b0000_0000,
+		0b0000_0000, 0b0000_0000,
+	}
+
+	for _, d := range spritedata {
+		g.bus.WriteByte(types.Word(addr), uint8(d))
+		addr++
+	}
+
+	// タイルマップは0x9800 ~
+	// 重なりを試すため
+	g.bus.WriteByte(types.Word(0x9800), uint8(0b0000_0000)) // dot
+	g.bus.WriteByte(types.Word(0x9801), uint8(0b0000_0001)) // face
+	g.bus.WriteByte(types.Word(0x9802), uint8(0b0000_0010)) // empty
+
+	// OAMは0xFE00 ~
+	g.bus.WriteByte(types.Word(0xFE00), uint8(0b0010_1111)) // y
+	g.bus.WriteByte(types.Word(0xFE01), uint8(0b0001_1111)) // x
+	g.bus.WriteByte(types.Word(0xFE02), uint8(0b0000_0001)) // tilemap
+	g.bus.WriteByte(types.Word(0xFE03), uint8(0b0000_0000)) // config
+
+	g.bus.WriteByte(types.Word(0xFE04), uint8(0b0010_1111)) // y
+	g.bus.WriteByte(types.Word(0xFE05), uint8(0b0010_1110)) // x
+	g.bus.WriteByte(types.Word(0xFE06), uint8(0b0000_0001)) // tilemap
+	g.bus.WriteByte(types.Word(0xFE07), uint8(0b0000_0000)) // config
+
+	g.bgPalette = 0b1110_0100
+	g.objPalette0 = 0b1110_0100
+	g.objPalette1 = 0b1110_0100
+
+	for i := 0; i < 144; i++ {
+		g.buildBGTile()
+		g.buildSprites()
+		g.ly = g.ly + 1
+	}
+
+	file, err := os.Create("../../test/unit/sprite.png")
+	defer file.Close()
+	if err != nil {
+		panic(err)
+	}
+	img := image.NewRGBA(image.Rect(0, 0, constants.ScreenWidth, constants.ScreenHeight))
+	set(img, g.imageData)
+	if err := png.Encode(file, img); err != nil {
+		panic(err)
+	}
+}
