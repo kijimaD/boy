@@ -130,7 +130,7 @@ func TestBuildBGTile(t *testing.T) {
 		g.ly = g.ly + 1
 	}
 
-	file, err := os.Create("../../test/unit/block.png")
+	file, err := os.Create("../../test/unit/bgtile.png")
 	defer file.Close()
 	if err != nil {
 		panic(err)
