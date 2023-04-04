@@ -445,22 +445,30 @@ func (g *GPU) getTileID(tileY, lineOffset uint, offsetAddr types.Word) int {
 	return int(id)
 }
 
+// パレットIDとbgPaletteをかけ合わせて背景色を取得
 func (g *GPU) getBGPalette(n uint) color.RGBA {
+	// 0b[11][10]_[01][00]
+	// 目標の桁を右にシフト。右2桁だけ取り出し
 	c := (g.bgPalette >> (n * 2)) & 0x03
 	return g.getPalette(c)
 }
 
-// 色を取得
+var THIN_GREEN = color.RGBA{175, 197, 160, 255}
+var MEDIUM_GREEN = color.RGBA{93, 147, 66, 255}
+var DEEP_GREEN = color.RGBA{22, 63, 48, 255}
+var BLACK_GREEN = color.RGBA{0, 40, 0, 255}
+
+// パレットIDから色を取得
 func (g *GPU) getPalette(c byte) color.RGBA {
 	switch c {
 	case 0:
-		return color.RGBA{175, 197, 160, 255}
+		return THIN_GREEN
 	case 1:
-		return color.RGBA{93, 147, 66, 255}
+		return MEDIUM_GREEN
 	case 2:
-		return color.RGBA{22, 63, 48, 255}
+		return DEEP_GREEN
 	case 3:
-		return color.RGBA{0, 40, 0, 255}
+		return BLACK_GREEN
 	}
 	panic("unhandled color number detected.")
 }

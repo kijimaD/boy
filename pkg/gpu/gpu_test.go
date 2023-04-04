@@ -241,3 +241,29 @@ func TestGetTileID(t *testing.T) {
 	v = g.getTileID(0, uint(1), g.getWindowTilemapAddr())
 	assert.Equal(int(0b0000_0111), v)
 }
+
+func TestGetBGPalette(t *testing.T) {
+	assert := assert.New(t)
+	g := setup()
+
+	// g.bgPaletteが指定されてないのですべて薄緑になる
+	color := g.getBGPalette(3)
+	assert.Equal(THIN_GREEN, color)
+	color = g.getBGPalette(2)
+	assert.Equal(THIN_GREEN, color)
+	color = g.getBGPalette(1)
+	assert.Equal(THIN_GREEN, color)
+	color = g.getBGPalette(0)
+	assert.Equal(THIN_GREEN, color)
+
+	g.bgPalette = 0b1110_0100
+	// 0b[11][10]_[01][00]
+	color = g.getBGPalette(3)
+	assert.Equal(BLACK_GREEN, color)
+	color = g.getBGPalette(2)
+	assert.Equal(DEEP_GREEN, color)
+	color = g.getBGPalette(1)
+	assert.Equal(MEDIUM_GREEN, color)
+	color = g.getBGPalette(0)
+	assert.Equal(THIN_GREEN, color)
+}
