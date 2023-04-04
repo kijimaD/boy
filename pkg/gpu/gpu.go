@@ -345,7 +345,7 @@ func (g *GPU) buildSprites() {
 				} else {
 					c = (g.objPalette0 >> (paletteID * 2)) & 0x03
 				}
-				// パレットIDが0以外のとき描画。0のときは背景色を優先するため描画をスキップする
+				// パレットIDが0以外のとき描画。0のときは背景色を透過するため描画をスキップする
 				if paletteID != 0 {
 					g.imageData[(constants.ScreenHeight-1-uint(offsetY+adjustedY))*constants.ScreenWidth+uint(adjustedX+offsetX)] = g.getPalette(c)
 				}
@@ -419,7 +419,7 @@ func (g *GPU) getBGPaletteID(tileID int, x int, y uint) byte {
 	// 	pattern #0 lies at address $8000). In the second case,
 	// 	patterns have signed numbers from -128 to 127 (i.e.
 	// 	pattern #0 lies at address $9000). The Tile Data Table
-	// 	address for the background can be selected via LCDC	register.
+	// 	address for the background can be selected via LCDC register.
 	if g.tileData0Selected() {
 		addr = types.Word((int(int8(tileID)) + 128) * 0x10)
 	} else {
@@ -438,6 +438,7 @@ func (g *GPU) getBGPaletteID(tileID int, x int, y uint) byte {
 	return paletteID
 }
 
+// タイル位置のタイルIDを取得。タイルIDがわかると、8x8をどのタイルで描画するかが決まる
 func (g *GPU) getTileID(tileY, lineOffset uint, offsetAddr types.Word) int {
 	addr := types.Word(tileY) + types.Word(lineOffset) + offsetAddr
 	id := byte(g.bus.ReadByte(addr))

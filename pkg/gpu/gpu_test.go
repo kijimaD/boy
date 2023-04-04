@@ -226,3 +226,18 @@ func TestBuildSprites(t *testing.T) {
 		panic(err)
 	}
 }
+
+func TestGetTileID(t *testing.T) {
+	assert := assert.New(t)
+	g := setup()
+
+	// タイルID書き込み
+	g.bus.WriteByte(types.Word(0x9800), uint8(0b0000_1111))
+	v := g.getTileID(0, uint(0), g.getWindowTilemapAddr())
+	assert.Equal(int(0b0000_1111), v)
+
+	// タイルID書き込み
+	g.bus.WriteByte(types.Word(0x9801), uint8(0b0000_0111))
+	v = g.getTileID(0, uint(1), g.getWindowTilemapAddr())
+	assert.Equal(int(0b0000_0111), v)
+}
