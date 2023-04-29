@@ -155,7 +155,7 @@ func TestBuildSprites(t *testing.T) {
 	g := setup()
 
 	tiledata := []int{
-		0b000_0000, 0b0000_0000,
+		0b0000_0000, 0b0000_0000,
 		0b0000_0000, 0b0000_0000,
 		0b0000_0000, 0b0000_0000,
 		0b0001_1000, 0b0000_0000,
@@ -225,6 +225,39 @@ func TestBuildSprites(t *testing.T) {
 	if err := png.Encode(file, img); err != nil {
 		panic(err)
 	}
+}
+
+func TestGetBGPaletteID(t *testing.T) {
+	assert := assert.New(t)
+	g := setup()
+
+	tiledata := []int{
+		0b0000_0000, 0b0000_0000,
+		0b0000_0000, 0b0000_0000,
+		0b0000_0000, 0b0000_0000,
+		0b0001_1000, 0b0000_0000,
+		0b0001_1000, 0b0000_0000,
+		0b0000_0000, 0b0000_0000,
+		0b0000_0000, 0b0000_0000,
+		0b0000_0001, 0b0000_0001,
+	}
+
+	// タイルは VRAM 0x8000 ~ 0x97FF
+	addr := 0x8000
+	for _, d := range tiledata {
+		g.bus.WriteByte(types.Word(addr), uint8(d))
+		addr++
+	}
+
+	g.bus.WriteByte(types.Word(0x9800), uint8(0b0000_0000))
+	v := g.getBGPaletteID(0, 0, 0)
+	assert.Equal(byte(0x0), v)
+	v = g.getBGPaletteID(0, 3, 3)
+	assert.Equal(byte(0x1), v)
+	v = g.getBGPaletteID(0, 7, 7)
+	assert.Equal(byte(0x3), v)
+	v = g.getBGPaletteID(1, 7, 7)
+	assert.Equal(byte(0x0), v)
 }
 
 func TestGetTileID(t *testing.T) {

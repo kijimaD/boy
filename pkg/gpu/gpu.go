@@ -411,7 +411,10 @@ func (g *GPU) getSpritePaletteID(tileID int, x int, y uint) byte {
 	return paletteID
 }
 
-// タイルIDからパレットIDを取得して返す
+// タイルIDとx,yから、パレットID(色ID)を取得して返す。8x8の中から1マスの情報を取得する。
+// タイルIDはタイルマップアドレスから開始アドレスを引いた数
+// 0x9800: 0
+// 0x9801: 1
 func (g *GPU) getBGPaletteID(tileID int, x int, y uint) byte {
 	x = x % 8
 	var addr types.Word
@@ -425,7 +428,7 @@ func (g *GPU) getBGPaletteID(tileID int, x int, y uint) byte {
 	} else {
 		addr = types.Word(tileID * 0x10)
 	}
-	base := types.Word(g.getTileDataAddr() + addr + types.Word(y*2))
+	base := types.Word(g.getTileDataAddr() + addr + types.Word(y*2)) // 2バイトで1列だからy*2
 	l1 := g.bus.ReadByte(base)
 	l2 := g.bus.ReadByte(base + 1)
 	paletteID := byte(0)
@@ -445,7 +448,7 @@ func (g *GPU) getTileID(tileY, lineOffset uint, offsetAddr types.Word) int {
 	return int(id)
 }
 
-// パレットIDとbgPaletteをかけ合わせて背景色を取得
+// bgPaletteからパレットIDを取り出して背景色を取得
 func (g *GPU) getBGPalette(n uint) color.RGBA {
 	// 0b[11][10]_[01][00]
 	// 目標の桁を右にシフト。右2桁だけ取り出し
