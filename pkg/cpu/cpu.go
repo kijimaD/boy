@@ -24,12 +24,16 @@ type flags int
 
 const (
 	// C is carry flag
+	// 加減算の結果、キャリーまたはボローがあったことを示すフラグ
 	C flags = iota + 1
 	// H is half carry flag
+	// 下位4ビットから上位4ビットに対して、キャリー（桁上がり）またはボロー（桁下がり）があったことを示すフラグ
 	H
 	// N is negative flag
+	// 直前に実行された命令が減算命令であったことを示すフラグ
 	N
 	// Z is zero flag
+	// 演算結果がゼロであることを示す
 	Z
 )
 
@@ -93,6 +97,7 @@ func (cpu *CPU) Step() Cycle {
 	// オペコードとオペランド取得・実行
 	opcode := cpu.fetch()
 	var inst *inst
+	// CBプレフィックスは、CB命令が続くことを示す特殊なオペコードであり、これに続く1バイトのオペコードが実際の操作を指定するために用いられる
 	if opcode == 0xCB {
 		next := cpu.fetch()
 		inst = cbPrefixedInstructions[next]
@@ -1809,10 +1814,13 @@ func (cpu *CPU) rlc(v byte) byte {
 	return rotated
 }
 
+// rlc_n は、8ビットレジスタ n の値を1ビット左にローテートして、最上位ビットと最下位ビットを結合した結果を n に代入する命令
+// rotate left through carry : 最上位ビットが次のビットにキャリーされる
 func (cpu *CPU) rlc_n(r *types.Register) {
 	*r = cpu.rlc(*r)
 }
 
+// rlc_nとの違いはメモリ上の値を書き換える点
 func (cpu *CPU) rlc_hl() {
 	addr := cpu.getHL()
 	v := cpu.bus.ReadByte(addr)
@@ -1867,6 +1875,8 @@ func (cpu *CPU) rrc_hl() {
 //  H - Reset.
 //  C - Contains old bit 7 data.
 
+// Rotate Left
+// 1ビットだけ左にローテート(シフト)
 func (cpu *CPU) rl(v byte) byte {
 	rotated := v << 1
 	if cpu.isSet(C) {
@@ -1908,6 +1918,9 @@ func (cpu *CPU) rl_hl() {
 //	N - Reset.
 //	H - Reset.
 //	C - Contains old bit 0 data.
+
+// Rotate Right
+// 1ビットだけ右にローテート(シフト)
 func (cpu *CPU) rr(v byte) byte {
 	rotated := v >> 1
 	if cpu.isSet(C) {
