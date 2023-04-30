@@ -18,10 +18,13 @@ RUN apt-get update \
 
 WORKDIR /build
 COPY . .
+RUN go mod download
 
 RUN GO111MODULE=on go build -o ./bin/goboy \
     . \
     && upx-ucl --best --ultra-brute ./bin/goboy
+
+CMD ["/bin/bash"]
 
 ###########
 # release #

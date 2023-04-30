@@ -4,7 +4,7 @@ DOCKER_TAG := latest
 
 .PHONY: build
 build: ## Build go module
-	go build -o ./bin/goboy .
+	go build -buildvcs=false -o ./bin/goboy .
 
 .PHONY: build-image
 build-image: ## Build image for deploy
@@ -38,6 +38,8 @@ lint: ## Run lint
 
 .PHONY: run
 run: ## Run
+	export DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}'):0 && \
+	export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig && \
 	go run main.go roms/helloworld/hello.gb
 
 .PHONY: test
