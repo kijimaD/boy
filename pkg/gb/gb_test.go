@@ -84,14 +84,69 @@ func TestROMs(t *testing.T) {
 		frame int
 	}{
 		{
-			"hello_world",
-			RomPathPrefix + "helloworld/hello.gb",
-			100,
+			"01-special",
+			RomPathPrefix + "cpu_instrs/01-special.gb",
+			1000,
+		},
+		{
+			"02-interrupts",
+			RomPathPrefix + "cpu_instrs/02-interrupts.gb",
+			1000,
+		},
+		{
+			"03-op sp,hl.gb",
+			RomPathPrefix + "cpu_instrs/03-op sp,hl.gb",
+			1000,
+		},
+		{
+			"04-op r,imm.gb",
+			RomPathPrefix + "cpu_instrs/04-op r,imm.gb",
+			1000,
+		},
+		{
+			"05-op rp.gb",
+			RomPathPrefix + "cpu_instrs/05-op rp.gb",
+			1000,
+		},
+		{
+			"06-ld r,r.gb",
+			RomPathPrefix + "cpu_instrs/06-ld r,r.gb",
+			1000,
+		},
+		{
+			"07-jr,jp,call,ret,rst.gb",
+			RomPathPrefix + "cpu_instrs/07-jr,jp,call,ret,rst.gb",
+			1000,
+		},
+		{
+			"08-misc instrs.gb",
+			RomPathPrefix + "cpu_instrs/08-misc instrs.gb",
+			1000,
+		},
+		{
+			"09-op r,r.gb",
+			RomPathPrefix + "cpu_instrs/09-op r,r.gb",
+			1000,
+		},
+		{
+			"10-bit ops.gb",
+			RomPathPrefix + "cpu_instrs/10-bit ops.gb",
+			1000,
+		},
+		{
+			"11-op a,(hl).gb",
+			RomPathPrefix + "cpu_instrs/11-op a,(hl).gb",
+			1000,
 		},
 		{
 			"cpu_instr",
 			RomPathPrefix + "cpu_instrs/cpu_instrs.gb",
 			4000,
+		},
+		{
+			"hello_world",
+			RomPathPrefix + "helloworld/hello.gb",
+			100,
 		},
 		{
 			"genesis",
