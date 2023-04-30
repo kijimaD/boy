@@ -32,7 +32,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: build
-        run: docker-compose run app /bin/sh -c "make build"
+        run: docker-compose run --rm app /bin/sh -c "make build"
 
   test:
     needs: setup
@@ -40,7 +40,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: test
-        run: docker-compose run app /bin/sh -c "make test"
+        run: docker-compose run --rm app /bin/sh -c "make test"
 
   # lint:
   #   needs: setup

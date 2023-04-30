@@ -93,6 +93,11 @@ func TestROMs(t *testing.T) {
 			RomPathPrefix + "cpu_instrs/cpu_instrs.gb",
 			4000,
 		},
+		{
+			"genesis",
+			RomPathPrefix + "genesis/Genesis1.gb",
+			100,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
