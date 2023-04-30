@@ -4,16 +4,24 @@
 
 FROM golang:1.20-buster AS builder
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-    upx-ucl
+    && apt-get install -yq \
+    upx-ucl \
+    xorg-dev \
+    libx11-dev \
+    libxrandr-dev \
+    libxinerama-dev \
+    libxcursor-dev \
+    libxi-dev \
+    libopenal-dev  \
+    libasound2-dev \
+    libgl1-mesa-dev
 
 WORKDIR /build
 COPY . .
 
-RUN GO111MODULE=on CGO_ENABLED=0 go build -o ./bin/goboy \
-    -ldflags='-w -s -extldflags "-static"' \
+RUN GO111MODULE=on go build -o ./bin/goboy \
     . \
- && upx-ucl --best --ultra-brute ./bin/goboy
+    && upx-ucl --best --ultra-brute ./bin/goboy
 
 ###########
 # release #

@@ -10,6 +10,12 @@ https://github.com/bokuweb/gopher-boy
 $ go install github.com/kijimaD/goboy@main
 ```
 
+## run
+
+```
+$ go run main.go roms/helloworld/hello.gb
+```
+
 ## development
 
 ```

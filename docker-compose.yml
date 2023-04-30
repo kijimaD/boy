@@ -1,0 +1,12 @@
+version: '3.7'
+
+services:
+  app:
+    build:
+      context: .
+      target: builder
+    volumes:
+      - .:/work
+    working_dir: /work
+    command: go run main.go roms/helloworld/hello.gb
+    tty: true
