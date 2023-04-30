@@ -18,7 +18,7 @@ func NewMBC0(data []byte) *MBC0 {
 }
 
 func (m *MBC0) Write(addr types.Word, value byte) {
-	panic("can't write to ROM!")
+	// can't write to ROM!
 }
 
 func (m *MBC0) Read(addr types.Word) byte {
